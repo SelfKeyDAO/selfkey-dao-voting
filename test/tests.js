@@ -1,0 +1,155 @@
+const { expect } = require("chai");
+const { ethers, upgrades } = require("hardhat");
+const { time } = require("@nomicfoundation/hardhat-network-helpers");
+
+
+describe("Selfkey.DAO voting tests", function () {
+    let authContract;
+    let contract;
+
+    let owner;
+    let addr1;
+    let addr2;
+    let receiver;
+    let signer;
+    let addrs;
+
+    const ZERO_ADDRESS = '0x0000000000000000000000000000000000000000';
+
+    beforeEach(async function () {
+        [owner, addr1, addr2, receiver, signer, ...addrs] = await ethers.getSigners();
+
+        let authorizationContractFactory = await ethers.getContractFactory("SelfkeyIdAuthorization");
+        authContract = await authorizationContractFactory.deploy(signer.address);
+
+        let votingContractFactory = await ethers.getContractFactory("SelfkeyDaoVoting");
+        contract = await upgrades.deployProxy(votingContractFactory, [authContract.address]);
+        await contract.deployed();
+    });
+
+    describe("Deployment", function() {
+        it("Deployed correctly and Selfkey.ID authorization contract was set", async function() {
+            expect(await contract.authorizationContract()).to.equal(authContract.address);
+        });
+    });
+
+    describe("Proposals", function() {
+        it("Owner can create Voting proposals", async function() {
+            await expect(contract.connect(owner).createProposal("Voting A", true, { from: owner.address }))
+                .to.emit(contract, 'ProposalCreated')
+                .withArgs(1, "Voting A", true);
+
+            const proposal = await contract.proposals(1);
+            expect(proposal.title).to.equal("Voting A");
+
+            const numProposals = await contract.numProposals();
+            expect(numProposals).to.equal(1);
+        });
+
+        it("Non-Owner cannot create Voting proposals", async function() {
+            await expect(contract.connect(addr1).createProposal("Voting A", true, { from: addr1.address }))
+                .to.be.revertedWith("Ownable: caller is not the owner");
+        });
+    });
+
+    describe("Voting", function() {
+        it("Should allow a authorized user to cast a vote", async () => {
+            await expect(contract.connect(owner).createProposal("Voting A", true, { from: owner.address }))
+                .to.emit(contract, 'ProposalCreated')
+                .withArgs(1, "Voting A", true);
+
+            const proposal = await contract.proposals(1);
+            expect(proposal.title).to.equal("Voting A");
+
+            let _from = contract.address;
+            let _to = addr1.address;
+            let _amount = 1;
+            let _scope = 'gov:proposal:vote';
+            let _timestamp = await time.latest();
+            let _param = ethers.utils.hexZeroPad(1, 32);
+
+            // Lock 10 KEY for addr1
+            let hash = await authContract.getMessageHash(_from, _to, _amount, _scope, _param, _timestamp);
+            let signature = await signer.signMessage(ethers.utils.arrayify(hash));
+            expect(await authContract.verify(_from, _to, _amount, _scope, _param, _timestamp, signer.address, signature)).to.equal(true);
+
+            await expect(contract.connect(addr1).vote(addr1.address, _amount, _param, _timestamp, signer.address, signature, { from: addr1.address }))
+                .to.emit(contract, 'VoteCast')
+                .withArgs(1, addr1.address, _amount);
+
+
+            const voteCount = await contract.getVoteCount(1);
+            const hasVoted = await contract.hasUserVoted(1, addr1.address);
+
+            expect(voteCount.toNumber()).to.equal(1);
+            expect(hasVoted).to.be.true;
+          });
+
+          it("Should allow a authorized user to cast more than one vote", async () => {
+            await expect(contract.connect(owner).createProposal("Voting A", true, { from: owner.address }))
+                .to.emit(contract, 'ProposalCreated')
+                .withArgs(1, "Voting A", true);
+
+            const proposal = await contract.proposals(1);
+            expect(proposal.title).to.equal("Voting A");
+
+            let _from = contract.address;
+            let _to = addr1.address;
+            let _amount = 2;
+            let _scope = 'gov:proposal:vote';
+            let _timestamp = await time.latest();
+            let _param = ethers.utils.hexZeroPad(1, 32);
+
+            // Lock 10 KEY for addr1
+            let hash = await authContract.getMessageHash(_from, _to, _amount, _scope, _param, _timestamp);
+            let signature = await signer.signMessage(ethers.utils.arrayify(hash));
+            expect(await authContract.verify(_from, _to, _amount, _scope, _param, _timestamp, signer.address, signature)).to.equal(true);
+
+            await expect(contract.connect(addr1).vote(addr1.address, _amount, _param, _timestamp, signer.address, signature, { from: addr1.address }))
+                .to.emit(contract, 'VoteCast')
+                .withArgs(1, addr1.address, _amount);
+
+
+            const voteCount = await contract.getVoteCount(1);
+            const hasVoted = await contract.hasUserVoted(1, addr1.address);
+
+            expect(voteCount.toNumber()).to.equal(2);
+            expect(hasVoted).to.be.true;
+          });
+
+          it("Should not allow a authorized user to vote more than once", async () => {
+            await expect(contract.connect(owner).createProposal("Voting A", true, { from: owner.address }))
+                .to.emit(contract, 'ProposalCreated')
+                .withArgs(1, "Voting A", true);
+
+            const proposal = await contract.proposals(1);
+            expect(proposal.title).to.equal("Voting A");
+
+            let _from = contract.address;
+            let _to = addr1.address;
+            let _amount = 2;
+            let _scope = 'gov:proposal:vote';
+            let _timestamp = await time.latest();
+            let _param = ethers.utils.hexZeroPad(1, 32);
+
+            // Lock 10 KEY for addr1
+            let hash = await authContract.getMessageHash(_from, _to, _amount, _scope, _param, _timestamp);
+            let signature = await signer.signMessage(ethers.utils.arrayify(hash));
+            expect(await authContract.verify(_from, _to, _amount, _scope, _param, _timestamp, signer.address, signature)).to.equal(true);
+
+            await expect(contract.connect(addr1).vote(addr1.address, _amount, _param, _timestamp, signer.address, signature, { from: addr1.address }))
+                .to.emit(contract, 'VoteCast')
+                .withArgs(1, addr1.address, _amount);
+
+
+            const voteCount = await contract.getVoteCount(1);
+            const hasVoted = await contract.hasUserVoted(1, addr1.address);
+
+            expect(voteCount.toNumber()).to.equal(2);
+            expect(hasVoted).to.be.true;
+
+            await expect(contract.connect(addr1).vote(addr1.address, _amount, _param, _timestamp, signer.address, signature, { from: addr1.address }))
+                .to.be.revertedWith("Already voted for this proposal");
+          });
+    });
+});
