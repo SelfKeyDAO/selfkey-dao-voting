@@ -65,6 +65,14 @@ contract SelfkeyDaoVoting is Initializable, OwnableUpgradeable, ISelfkeyDaoVotin
     function vote(address _voter, uint256 _votes, bytes32 _param, uint _timestamp, address _signer, bytes memory signature) external {
 
         uint256 proposalId = uint256(_param);
+
+        // Verify that the proposal exists
+        require(bytes(proposals[proposalId].title).length > 0, "Proposal does not exist");
+
+        // Verify that the proposal is active
+        require(proposals[proposalId].active, "Proposal is not active");
+
+        // Verify that the sender has not voted yet for the given proposal
         require(!hasUserVoted(proposalId, _voter), "Already voted for this proposal");
 
         // Verify payload

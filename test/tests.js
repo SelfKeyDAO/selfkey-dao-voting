@@ -113,6 +113,9 @@ describe("Selfkey.DAO voting tests", function () {
             const voteCount = await contract.getVoteCount(1);
             const hasVoted = await contract.hasUserVoted(1, addr1.address);
 
+            // const p = await contract.proposals(1);
+            // console.log(p);
+
             expect(voteCount.toNumber()).to.equal(2);
             expect(hasVoted).to.be.true;
           });
@@ -150,6 +153,51 @@ describe("Selfkey.DAO voting tests", function () {
 
             await expect(contract.connect(addr1).vote(addr1.address, _amount, _param, _timestamp, signer.address, signature, { from: addr1.address }))
                 .to.be.revertedWith("Already voted for this proposal");
+          });
+
+
+          it("Cannot vote for an inactive proposal", async () => {
+            await expect(contract.connect(owner).createProposal("Voting A", false, { from: owner.address }))
+                .to.emit(contract, 'ProposalCreated')
+                .withArgs(1, "Voting A", false);
+
+            const proposal = await contract.proposals(1);
+            expect(proposal.title).to.equal("Voting A");
+
+            let _from = contract.address;
+            let _to = addr1.address;
+            let _amount = 2;
+            let _scope = 'gov:proposal:vote';
+            let _timestamp = await time.latest();
+            let _param = ethers.utils.hexZeroPad(1, 32);
+
+            // Lock 10 KEY for addr1
+            let hash = await authContract.getMessageHash(_from, _to, _amount, _scope, _param, _timestamp);
+            let signature = await signer.signMessage(ethers.utils.arrayify(hash));
+            expect(await authContract.verify(_from, _to, _amount, _scope, _param, _timestamp, signer.address, signature)).to.equal(true);
+
+            await expect(contract.connect(addr1).vote(addr1.address, _amount, _param, _timestamp, signer.address, signature, { from: addr1.address }))
+                .to.be.revertedWith("Proposal is not active");
+
+          });
+
+          it("Cannot vote for an inexistent proposal", async () => {
+
+            let _from = contract.address;
+            let _to = addr1.address;
+            let _amount = 2;
+            let _scope = 'gov:proposal:vote';
+            let _timestamp = await time.latest();
+            let _param = ethers.utils.hexZeroPad(1, 32);
+
+            // Lock 10 KEY for addr1
+            let hash = await authContract.getMessageHash(_from, _to, _amount, _scope, _param, _timestamp);
+            let signature = await signer.signMessage(ethers.utils.arrayify(hash));
+            expect(await authContract.verify(_from, _to, _amount, _scope, _param, _timestamp, signer.address, signature)).to.equal(true);
+
+            await expect(contract.connect(addr1).vote(addr1.address, _amount, _param, _timestamp, signer.address, signature, { from: addr1.address }))
+                .to.be.revertedWith("Proposal does not exist");
+
           });
     });
 });
