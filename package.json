@@ -10,7 +10,7 @@
 	"license": "ISC",
 	"dependencies": {
 		"@openzeppelin/hardhat-defender": "^1.8.2",
-		"hardhat": "^2.19.1"
+		"hardhat": "2.16.1"
 	},
 	"devDependencies": {
 		"@nomicfoundation/hardhat-network-helpers": "^1.0.7",

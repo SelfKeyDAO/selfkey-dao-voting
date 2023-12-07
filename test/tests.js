@@ -53,6 +53,30 @@ describe("Selfkey.DAO voting tests", function () {
     });
 
     describe("Voting", function() {
+        it("Should not allow a non-authorized user to cast a vote", async () => {
+            await expect(contract.connect(owner).createProposal("Voting A", true, { from: owner.address }))
+                .to.emit(contract, 'ProposalCreated')
+                .withArgs(1, "Voting A", true);
+
+            const proposal = await contract.proposals(1);
+            expect(proposal.title).to.equal("Voting A");
+
+            let _from = contract.address;
+            let _to = addr1.address;
+            let _amount = 1;
+            let _scope = 'gov:proposal:vote2';
+            let _timestamp = await time.latest();
+            let _param = ethers.utils.hexZeroPad(1, 32);
+
+            // Lock 10 KEY for addr1
+            let hash = await authContract.getMessageHash(_from, _to, _amount, _scope, _param, _timestamp);
+            let signature = await signer.signMessage(ethers.utils.arrayify(hash));
+            expect(await authContract.verify(_from, _to, _amount, _scope, _param, _timestamp, signer.address, signature)).to.equal(true);
+
+            await expect(contract.connect(addr1).vote(addr1.address, _amount, _param, _timestamp, signer.address, signature, { from: addr1.address }))
+                .to.be.revertedWith("Verification failed");
+        });
+
         it("Should allow a authorized user to cast a vote", async () => {
             await expect(contract.connect(owner).createProposal("Voting A", true, { from: owner.address }))
                 .to.emit(contract, 'ProposalCreated')
