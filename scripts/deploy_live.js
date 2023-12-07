@@ -8,7 +8,7 @@ async function main() {
     const authContractAddress = "0x9928D9e849317983760a61FC486696001f387C6E";
 
     const contractFactory = await hre.ethers.getContractFactory("SelfkeyDaoVoting");
-    const contract = await upgrades.deployProxy(contractFactory, [authContractAddress]);
+    const contract = await upgrades.deployProxy(contractFactory, [authContractAddress], { timeout: 500000 });
     await contract.deployed();
 
     console.log("Deployed contract address:", contract.address);
@@ -20,7 +20,7 @@ async function main() {
     // await contract.createProposal('Mint Self', true);
 
     // INFO: verify contract after deployment
-    // npx hardhat verify --network polygon 0x076c1B1758A77F5f51Ef2616e97d00fC6350A8Bc
+    // npx hardhat verify --network polygon 0x945B096376aE425Fc1a2c9DE77a85b1895132815
 }
 
 main()
