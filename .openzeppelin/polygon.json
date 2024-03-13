@@ -1,0 +1,171 @@
+{
+  "manifestVersion": "3.2",
+  "admin": {
+    "address": "0x807b207e794657a2c4C411BA38fCF096ae076513",
+    "txHash": "0xd105083ff0914b26776e9089a6fc681a7a592c690bd155c4e5ca573cb9c2cba1"
+  },
+  "proxies": [
+    {
+      "address": "0x945B096376aE425Fc1a2c9DE77a85b1895132815",
+      "txHash": "0xddeeb8c72309748a4965c2ebfb98d9730d9231d8cd172a99e92c19fc6d49403a",
+      "kind": "transparent"
+    }
+  ],
+  "impls": {
+    "75ee060651728e2413f3c0223db911c7ad75b23774b962c02013572a615dbc85": {
+      "address": "0xF49DFDbD45CAF568b6D8f19884D2f5668a493362",
+      "txHash": "0x348574ec1594de0ade83d4067f50fed434bbcb46cf790dc5383e51e1abdf96c2",
+      "layout": {
+        "solcVersion": "0.8.19",
+        "storage": [
+          {
+            "label": "_initialized",
+            "offset": 0,
+            "slot": "0",
+            "type": "t_uint8",
+            "contract": "Initializable",
+            "src": "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:63",
+            "retypedFrom": "bool"
+          },
+          {
+            "label": "_initializing",
+            "offset": 1,
+            "slot": "0",
+            "type": "t_bool",
+            "contract": "Initializable",
+            "src": "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:68"
+          },
+          {
+            "label": "__gap",
+            "offset": 0,
+            "slot": "1",
+            "type": "t_array(t_uint256)50_storage",
+            "contract": "ContextUpgradeable",
+            "src": "@openzeppelin/contracts-upgradeable/utils/ContextUpgradeable.sol:36"
+          },
+          {
+            "label": "_owner",
+            "offset": 0,
+            "slot": "51",
+            "type": "t_address",
+            "contract": "OwnableUpgradeable",
+            "src": "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol:22"
+          },
+          {
+            "label": "__gap",
+            "offset": 0,
+            "slot": "52",
+            "type": "t_array(t_uint256)49_storage",
+            "contract": "OwnableUpgradeable",
+            "src": "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol:94"
+          },
+          {
+            "label": "authorizedSigner",
+            "offset": 0,
+            "slot": "101",
+            "type": "t_address",
+            "contract": "SelfkeyDaoVoting",
+            "src": "contracts/SelfkeyDaoVoting.sol:16"
+          },
+          {
+            "label": "authorizationContract",
+            "offset": 0,
+            "slot": "102",
+            "type": "t_contract(ISelfkeyIdAuthorization)1228",
+            "contract": "SelfkeyDaoVoting",
+            "src": "contracts/SelfkeyDaoVoting.sol:17"
+          },
+          {
+            "label": "proposals",
+            "offset": 0,
+            "slot": "103",
+            "type": "t_mapping(t_uint256,t_struct(Proposal)685_storage)",
+            "contract": "SelfkeyDaoVoting",
+            "src": "contracts/SelfkeyDaoVoting.sol:20"
+          },
+          {
+            "label": "numProposals",
+            "offset": 0,
+            "slot": "104",
+            "type": "t_uint256",
+            "contract": "SelfkeyDaoVoting",
+            "src": "contracts/SelfkeyDaoVoting.sol:22"
+          }
+        ],
+        "types": {
+          "t_address": {
+            "label": "address",
+            "numberOfBytes": "20"
+          },
+          "t_array(t_uint256)49_storage": {
+            "label": "uint256[49]",
+            "numberOfBytes": "1568"
+          },
+          "t_array(t_uint256)50_storage": {
+            "label": "uint256[50]",
+            "numberOfBytes": "1600"
+          },
+          "t_bool": {
+            "label": "bool",
+            "numberOfBytes": "1"
+          },
+          "t_contract(ISelfkeyIdAuthorization)1228": {
+            "label": "contract ISelfkeyIdAuthorization",
+            "numberOfBytes": "20"
+          },
+          "t_mapping(t_address,t_bool)": {
+            "label": "mapping(address => bool)",
+            "numberOfBytes": "32"
+          },
+          "t_mapping(t_uint256,t_struct(Proposal)685_storage)": {
+            "label": "mapping(uint256 => struct ISelfkeyDaoVoting.Proposal)",
+            "numberOfBytes": "32"
+          },
+          "t_string_storage": {
+            "label": "string",
+            "numberOfBytes": "32"
+          },
+          "t_struct(Proposal)685_storage": {
+            "label": "struct ISelfkeyDaoVoting.Proposal",
+            "members": [
+              {
+                "label": "title",
+                "type": "t_string_storage",
+                "offset": 0,
+                "slot": "0"
+              },
+              {
+                "label": "hasVoted",
+                "type": "t_mapping(t_address,t_bool)",
+                "offset": 0,
+                "slot": "1"
+              },
+              {
+                "label": "voteCount",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "2"
+              },
+              {
+                "label": "active",
+                "type": "t_bool",
+                "offset": 0,
+                "slot": "3"
+              }
+            ],
+            "numberOfBytes": "128"
+          },
+          "t_uint256": {
+            "label": "uint256",
+            "numberOfBytes": "32"
+          },
+          "t_uint8": {
+            "label": "uint8",
+            "numberOfBytes": "1"
+          }
+        },
+        "namespaces": {}
+      }
+    }
+  }
+}
